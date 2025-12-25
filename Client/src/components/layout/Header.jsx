@@ -50,7 +50,7 @@ const Header = () => {
                 <nav className={`header-nav ${isMenuOpen ? 'active' : ''}`}>
                     <ul className="nav-list">
                         <li className="nav-item">
-                            <a href="/" onClick={closeMenu}>Posts</a>
+                            <a href="/" onClick={closeMenu}>Productos</a>
                         </li>
                         {isAuthenticated ? (
                             <>

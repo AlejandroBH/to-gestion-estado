@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import api from "../services/api";
+import { getProducts, toggleFavorite } from "../services/api";
 import ProductList from "../components/common/ProductList";
 import CreateProductModal from "../components/common/CreateProductModal";
 import "../styles/products.css";
@@ -14,8 +14,15 @@ const ProductsPage = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await api.get("/products");
-                setProducts(response.data);
+                const { data, fromCache } = await getProducts();
+                setProducts(data);
+
+                // Mostrar en consola si los datos vienen del cache
+                if (fromCache) {
+                    console.log("📦 Productos cargados desde cache");
+                } else {
+                    console.log("🌐 Productos cargados desde servidor");
+                }
             } catch (err) {
                 setError("Error al cargar los productos", err);
             } finally {
@@ -41,7 +48,7 @@ const ProductsPage = () => {
         }
 
         try {
-            const response = await api.patch(`/products/${id}/favorite`);
+            const response = await toggleFavorite(id);
             setProducts(products.map((product) => (product.id === id ? response.data : product)));
         } catch (err) {
             console.error("Error al marcar como favorito:", err);

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import api from "../../services/api";
+import { createProduct } from "../../services/api";
 
 const CreateProductModal = ({ isOpen, onClose, onProductCreated }) => {
     const [formData, setFormData] = useState({
@@ -34,7 +34,7 @@ const CreateProductModal = ({ isOpen, onClose, onProductCreated }) => {
                 category: formData.category,
             };
 
-            const response = await api.post("/products", productData);
+            const response = await createProduct(productData);
             onProductCreated(response.data);
             setFormData({
                 name: "",

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { getStoredTokens, storeTokens, clearTokens } from "../utils/tokenManager";
+import cacheService from "./cacheService";
 
 const api = axios.create({
   baseURL: "http://localhost:3000",
@@ -101,5 +102,91 @@ api.interceptors.response.use(
     }
   }
 );
+
+// FUNCIONES DE API CON CACHE PARA PRODUCTOS
+
+const CACHE_KEYS = {
+  PRODUCTS: 'products_list',
+};
+
+// Obtener todos los productos (con cache)
+export const getProducts = async () => {
+  const cachedProducts = cacheService.get(CACHE_KEYS.PRODUCTS);
+
+  if (cachedProducts) {
+    return { data: cachedProducts, fromCache: true };
+  }
+
+  try {
+    const response = await api.get("/products");
+
+    cacheService.set(CACHE_KEYS.PRODUCTS, response.data);
+
+    return { data: response.data, fromCache: false };
+  } catch (error) {
+    console.error("[API] Error al obtener productos:", error);
+    throw error;
+  }
+};
+
+// Crear un nuevo producto invalida el cache después de crear
+export const createProduct = async (productData) => {
+  try {
+    const response = await api.post("/products", productData);
+
+    cacheService.invalidate(CACHE_KEYS.PRODUCTS);
+    console.log("[API] Cache invalidado después de crear producto");
+
+    return response;
+  } catch (error) {
+    console.error("[API] Error al crear producto:", error);
+    throw error;
+  }
+};
+
+// Actualizar un producto existente invalida el cache después de actualizar
+export const updateProduct = async (id, productData) => {
+  try {
+    const response = await api.put(`/products/${id}`, productData);
+
+    cacheService.invalidate(CACHE_KEYS.PRODUCTS);
+    console.log("[API] Cache invalidado después de actualizar producto");
+
+    return response;
+  } catch (error) {
+    console.error("[API] Error al actualizar producto:", error);
+    throw error;
+  }
+};
+
+// Eliminar un producto invalida el cache después de eliminar
+export const deleteProduct = async (id) => {
+  try {
+    const response = await api.delete(`/products/${id}`);
+
+    cacheService.invalidate(CACHE_KEYS.PRODUCTS);
+    console.log("[API] Cache invalidado después de eliminar producto");
+
+    return response;
+  } catch (error) {
+    console.error("[API] Error al eliminar producto:", error);
+    throw error;
+  }
+};
+
+// Marcar/desmarcar producto como favorito
+export const toggleFavorite = async (id) => {
+  try {
+    const response = await api.patch(`/products/${id}/favorite`);
+
+    cacheService.invalidate(CACHE_KEYS.PRODUCTS);
+    console.log("[API] Cache invalidado después de cambiar favorito");
+
+    return response;
+  } catch (error) {
+    console.error("[API] Error al cambiar favorito:", error);
+    throw error;
+  }
+};
 
 export default api;

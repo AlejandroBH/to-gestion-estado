@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { getProducts, toggleFavorite } from "../services/api";
 import ProductList from "../components/common/ProductList";
 import CreateProductModal from "../components/common/CreateProductModal";
@@ -10,6 +10,8 @@ const ProductsPage = () => {
     const [error, setError] = useState(null);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("");
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -31,7 +33,8 @@ const ProductsPage = () => {
         setIsLoggedIn(!!token);
     }, []);
 
-    const handleFavorite = async (id) => {
+    // Memoizar handleFavorite para evitar recrear la función en cada render
+    const handleFavorite = useCallback(async (id) => {
         const token = localStorage.getItem('token');
 
         if (!token) {
@@ -52,9 +55,10 @@ const ProductsPage = () => {
                 window.location.href = '/login';
             }
         }
-    };
+    }, [products]);
 
-    const handleCreateProduct = () => {
+    // Memoizar handleCreateProduct
+    const handleCreateProduct = useCallback(() => {
         if (!isLoggedIn) {
             alert('Debes iniciar sesión para crear un nuevo producto');
             window.location.href = '/login';
@@ -62,11 +66,33 @@ const ProductsPage = () => {
         }
 
         setIsModalOpen(true);
-    };
+    }, [isLoggedIn]);
 
-    const handleProductCreated = (newProduct) => {
+    // Memoizar handleProductCreated
+    const handleProductCreated = useCallback((newProduct) => {
         setProducts([newProduct, ...products]);
-    };
+    }, [products]);
+
+    // Extraer categorías únicas de los productos
+    const categories = useMemo(() => {
+        const uniqueCategories = [...new Set(products.map(p => p.category))];
+        return uniqueCategories.sort();
+    }, [products]);
+
+    // Memoizar productos filtrados para optimizar cálculos de filtrado y búsqueda
+    const filteredProducts = useMemo(() => {
+        return products.filter(product => {
+            const matchesSearch = searchTerm === "" ||
+                product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                product.category.toLowerCase().includes(searchTerm.toLowerCase());
+
+            const matchesCategory = selectedCategory === "" ||
+                product.category === selectedCategory;
+
+            return matchesSearch && matchesCategory;
+        });
+    }, [products, searchTerm, selectedCategory]);
 
     if (loading) return (
         <div className="products-page">
@@ -94,7 +120,34 @@ const ProductsPage = () => {
                     <span className="button-text">Crear Nuevo Producto</span>
                 </button>
             </div>
-            <ProductList products={products} onFavorite={handleFavorite} />
+
+            <div className="filters-container">
+                <div className="search-box">
+                    <input
+                        type="text"
+                        placeholder="🔍 Buscar productos..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="search-input"
+                    />
+                </div>
+                <div className="category-filter">
+                    <select
+                        value={selectedCategory}
+                        onChange={(e) => setSelectedCategory(e.target.value)}
+                        className="category-select"
+                    >
+                        <option value="">Todas las categorías</option>
+                        {categories.map(category => (
+                            <option key={category} value={category}>
+                                {category}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            </div>
+
+            <ProductList products={filteredProducts} onFavorite={handleFavorite} />
 
             <CreateProductModal
                 isOpen={isModalOpen}
@@ -106,3 +159,4 @@ const ProductsPage = () => {
 };
 
 export default ProductsPage;
+

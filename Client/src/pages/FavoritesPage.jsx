@@ -11,14 +11,8 @@ const FavoritesPage = () => {
     useEffect(() => {
         const fetchFavoriteProducts = async () => {
             try {
-                const { data, fromCache } = await getFavoriteProducts();
+                const { data } = await getFavoriteProducts();
                 setProducts(data);
-
-                if (fromCache) {
-                    console.log("📦 Productos favoritos cargados desde cache");
-                } else {
-                    console.log("🌐 Productos favoritos cargados desde servidor");
-                }
             } catch (err) {
                 setError("Error al cargar los productos favoritos", err);
             } finally {

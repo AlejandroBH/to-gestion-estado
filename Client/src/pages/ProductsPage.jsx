@@ -14,15 +14,8 @@ const ProductsPage = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const { data, fromCache } = await getProducts();
+                const { data } = await getProducts();
                 setProducts(data);
-
-                // Mostrar en consola si los datos vienen del cache
-                if (fromCache) {
-                    console.log("📦 Productos cargados desde cache");
-                } else {
-                    console.log("🌐 Productos cargados desde servidor");
-                }
             } catch (err) {
                 setError("Error al cargar los productos", err);
             } finally {

@@ -135,7 +135,6 @@ export const createProduct = async (productData) => {
     const response = await api.post("/products", productData);
 
     cacheService.invalidate(CACHE_KEYS.PRODUCTS);
-    console.log("[API] Cache invalidado después de crear producto");
 
     return response;
   } catch (error) {
@@ -150,7 +149,6 @@ export const updateProduct = async (id, productData) => {
     const response = await api.put(`/products/${id}`, productData);
 
     cacheService.invalidate(CACHE_KEYS.PRODUCTS);
-    console.log("[API] Cache invalidado después de actualizar producto");
 
     return response;
   } catch (error) {
@@ -165,7 +163,6 @@ export const deleteProduct = async (id) => {
     const response = await api.delete(`/products/${id}`);
 
     cacheService.invalidate(CACHE_KEYS.PRODUCTS);
-    console.log("[API] Cache invalidado después de eliminar producto");
 
     return response;
   } catch (error) {
@@ -220,13 +217,10 @@ export const toggleFavorite = async (id) => {
         const payload = JSON.parse(atob(accessToken.split('.')[1]));
         const userId = payload.id;
         cacheService.invalidate(`favorite_products_list_user_${userId}`);
-        console.log("[API] Cache de favoritos invalidado para usuario:", userId);
       } catch (error) {
         console.error("[API] Error al invalidar cache de favoritos:", error);
       }
     }
-
-    console.log("[API] Cache invalidado después de cambiar favorito");
 
     return response;
   } catch (error) {

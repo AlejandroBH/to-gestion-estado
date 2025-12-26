@@ -49,8 +49,6 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
                 return;
             }
 
-            console.log("Enviando post:", { title: formData.title, content: formData.content, author: authorName });
-
             const response = await api.post("/posts", {
                 title: formData.title,
                 content: formData.content,

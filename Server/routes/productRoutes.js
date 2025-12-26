@@ -6,6 +6,7 @@ import {
     updateProduct,
     deleteProduct,
     favoriteProduct,
+    getFavoriteProducts,
 } from "../controllers/productController.js";
 import {
     createProductValidator,
@@ -18,6 +19,7 @@ const productRouter = Router();
 
 // Rutas para productos
 productRouter.get("/", getAllProducts);
+productRouter.get("/favorites", authenticateToken, getFavoriteProducts);
 productRouter.get("/:id", idParamValidator, getProductById);
 productRouter.post("/", authenticateToken, createProductValidator, createProduct);
 productRouter.put("/:id", authenticateToken, updateProductValidator, updateProduct);

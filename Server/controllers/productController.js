@@ -69,3 +69,20 @@ export const favoriteProduct = async (req, res) => {
         res.status(404).json({ error: error.message });
     }
 };
+
+// Obtener productos favoritos del usuario autenticado
+export const getFavoriteProducts = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        console.log("🔍 Usuario autenticado ID:", userId);
+        console.log("🔍 req.user completo:", req.user);
+
+        const favoriteProducts = productService.getFavoriteProducts(userId);
+        console.log("📦 Productos favoritos encontrados:", favoriteProducts.length);
+        console.log("📦 IDs de productos:", favoriteProducts.map(p => ({ id: p.id, favoritedBy: p.favoritedBy })));
+
+        res.status(200).json(favoriteProducts);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};

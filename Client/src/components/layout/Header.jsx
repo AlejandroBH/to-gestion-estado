@@ -55,6 +55,9 @@ const Header = () => {
                         {isAuthenticated ? (
                             <>
                                 <li className="nav-item">
+                                    <a href="/favorites" onClick={closeMenu}>Favoritos</a>
+                                </li>
+                                <li className="nav-item">
                                     <a href="/account" onClick={closeMenu}>Mi Cuenta</a>
                                 </li>
                                 <li className="nav-item">

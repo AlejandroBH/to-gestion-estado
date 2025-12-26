@@ -71,3 +71,8 @@ export const favoriteProduct = (id, userId) => {
     product.favorites += 1;
     return product;
 };
+
+// Obtener productos favoritos de un usuario
+export const getFavoriteProducts = (userId) => {
+    return products.filter((product) => product.favoritedBy.includes(userId));
+};

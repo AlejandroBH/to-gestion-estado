@@ -174,12 +174,58 @@ export const deleteProduct = async (id) => {
   }
 };
 
+// Obtener productos favoritos del usuario autenticado (con cache)
+export const getFavoriteProducts = async () => {
+  const { accessToken } = getStoredTokens();
+  let userId = null;
+
+  if (accessToken) {
+    try {
+      const payload = JSON.parse(atob(accessToken.split('.')[1]));
+      userId = payload.id;
+    } catch (error) {
+      console.error("[API] Error al decodificar token:", error);
+    }
+  }
+
+  const FAVORITES_CACHE_KEY = `favorite_products_list_user_${userId}`;
+  const cachedFavorites = cacheService.get(FAVORITES_CACHE_KEY);
+
+  if (cachedFavorites) {
+    return { data: cachedFavorites, fromCache: true };
+  }
+
+  try {
+    const response = await api.get("/products/favorites");
+
+    cacheService.set(FAVORITES_CACHE_KEY, response.data);
+
+    return { data: response.data, fromCache: false };
+  } catch (error) {
+    console.error("[API] Error al obtener productos favoritos:", error);
+    throw error;
+  }
+};
+
 // Marcar/desmarcar producto como favorito
 export const toggleFavorite = async (id) => {
   try {
     const response = await api.patch(`/products/${id}/favorite`);
 
     cacheService.invalidate(CACHE_KEYS.PRODUCTS);
+
+    const { accessToken } = getStoredTokens();
+    if (accessToken) {
+      try {
+        const payload = JSON.parse(atob(accessToken.split('.')[1]));
+        const userId = payload.id;
+        cacheService.invalidate(`favorite_products_list_user_${userId}`);
+        console.log("[API] Cache de favoritos invalidado para usuario:", userId);
+      } catch (error) {
+        console.error("[API] Error al invalidar cache de favoritos:", error);
+      }
+    }
+
     console.log("[API] Cache invalidado después de cambiar favorito");
 
     return response;

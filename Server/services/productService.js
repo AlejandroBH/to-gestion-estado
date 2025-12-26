@@ -21,6 +21,7 @@ export const createProduct = (productData) => {
         ...productData,
         createdAt: new Date(),
         favorites: 0,
+        favoritedBy: [],
     };
     products.push(newProduct);
     return newProduct;
@@ -56,12 +57,17 @@ export const deleteProduct = (id) => {
 };
 
 // Marcar producto como favorito
-export const favoriteProduct = (id) => {
+export const favoriteProduct = (id, userId) => {
     const product = products.find((p) => p.id === parseInt(id));
     if (!product) {
         throw new Error("Producto no encontrado");
     }
 
+    if (product.favoritedBy.includes(userId)) {
+        throw new Error("Ya has marcado este producto como favorito");
+    }
+
+    product.favoritedBy.push(userId);
     product.favorites += 1;
     return product;
 };

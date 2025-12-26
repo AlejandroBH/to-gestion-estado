@@ -8,6 +8,7 @@ export const products = [
         category: "Electrónica",
         createdAt: new Date("2025-12-20"),
         favorites: 0,
+        favoritedBy: [],
     },
     {
         id: 2,
@@ -18,6 +19,7 @@ export const products = [
         category: "Accesorios",
         createdAt: new Date("2025-12-21"),
         favorites: 0,
+        favoritedBy: [],
     },
     {
         id: 3,
@@ -28,6 +30,7 @@ export const products = [
         category: "Accesorios",
         createdAt: new Date("2025-12-22"),
         favorites: 0,
+        favoritedBy: [],
     },
     {
         id: 4,
@@ -38,5 +41,6 @@ export const products = [
         category: "Electrónica",
         createdAt: new Date("2025-12-23"),
         favorites: 0,
+        favoritedBy: [],
     },
 ];

@@ -59,9 +59,13 @@ export const deleteProduct = async (req, res) => {
 export const favoriteProduct = async (req, res) => {
     try {
         const { id } = req.params;
-        const product = productService.favoriteProduct(id);
+        const userId = req.user.id;
+        const product = productService.favoriteProduct(id, userId);
         res.status(200).json(product);
     } catch (error) {
+        if (error.message === "Ya has marcado este producto como favorito") {
+            return res.status(400).json({ error: error.message });
+        }
         res.status(404).json({ error: error.message });
     }
 };
